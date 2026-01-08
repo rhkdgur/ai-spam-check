@@ -1,0 +1,5 @@
+//vscode 자동 가상 파이선 venv 연동 세팅
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/venv/bin/python",
+  "python.terminal.activateEnvironment": true
+}

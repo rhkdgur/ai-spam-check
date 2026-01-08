@@ -19,5 +19,3 @@ print(df);
 vectorizer = CountVectorizer();
 x = vectorizer.fit_transform(df["text"]);
 y = df["label"];
-
-#ddd
