@@ -1,13 +1,18 @@
 import global_data as global_data # 전역선언
 
-from sklearn.feature_extraction.text import CountVectorizer # 문장을 숫자로 변경하기 위함
+#from sklearn.feature_extraction.text import CountVectorizer # 문장을 숫자로 변경하기 위함
 from sklearn.linear_model import LogisticRegression # 학습을 위한 모델 선언
 from sklearn.model_selection import train_test_split # 학습 테스트를 위한 선언
 from sklearn.metrics import accuracy_score # 학습 테스트 정확도 확인
 import numpy as np # 개수 확인
+from sklearn.feature_extraction.text import TfidfVectorizer # TF-IDF 사용
 
 # 컴퓨터가 학습하기위해 문장을 숫자로 바꾸는 것
-vectorizer = CountVectorizer();
+# vectorizer = CountVectorizer(ngram_range=(1, 2));
+vectorizer = TfidfVectorizer( 
+    ngram_range=(1,2),  # 단어 범위를 1개에서 2개로 봄
+    min_df=3, # 3개 문서 이상 등장
+    max_df=0.9) # 너무 흔한 단어 제거 90%
 x = vectorizer.fit_transform(global_data.df["text"]); 
 y = global_data.df["label"];
 
@@ -17,7 +22,7 @@ x_train, x_test, y_train , y_test = train_test_split(
 )
 
 # 모델 만들고 학습시키기
-model = LogisticRegression();
+model = LogisticRegression(max_iter=1000);
 model.fit(x_train,y_train);
 
 # 테스트 데이터를 통해 예측 정확도 확인
@@ -55,3 +60,12 @@ top_ham_idx = coefficients.argsort()[:10]
 print("\n정상에 가장 영향 큰 단어")
 for idx in top_ham_idx:
     print(f"{feature_names[idx]} : {coefficients[idx]:.3f}")
+
+print("\n n-gram 단어 묶음 보기")
+feature_names = vectorizer.get_feature_names_out()
+coefficients = model.coef_[0]
+
+top_idx = coefficients.argsort()[-15:][::-1]
+
+for i in top_idx:
+    print(feature_names[i], coefficients[i])
