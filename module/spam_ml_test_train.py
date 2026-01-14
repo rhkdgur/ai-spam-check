@@ -7,6 +7,8 @@ from sklearn.metrics import accuracy_score # 학습 테스트 정확도 확인
 import numpy as np # 개수 확인
 from sklearn.feature_extraction.text import TfidfVectorizer # TF-IDF 사용
 
+from sklearn.metrics import classification_report
+
 # 컴퓨터가 학습하기위해 문장을 숫자로 바꾸는 것
 # vectorizer = CountVectorizer(ngram_range=(1, 2));
 vectorizer = TfidfVectorizer( 
@@ -67,6 +69,31 @@ for idx in top_ham_idx:
 print("\n오분류 문자 TOP 5 확인")
 proba = model.predict_proba(x_test)
 
+threshold = 0.5
+
+print("\n 임계점 : 0.5")
+
 for text, true, p in zip(text_test, y_test, proba):
-    if true != (p[1] > 0.5):
-        print(text, p[1])
+    pred = int(p[1] > threshold)
+    if true != pred:
+        print(f"[실제:{true}] [예측:{pred}] {p[1]:.3f} | {text}")
+
+y_pred = (proba[:, 1] > threshold).astype(int)
+
+print(classification_report(y_test, y_pred, target_names=["정상", "스팸"]))
+
+threshold = 0.7
+
+print("\n 임계점 : 0.7")
+
+y_pred = (proba[:, 1] > threshold).astype(int)
+
+print(classification_report(y_test, y_pred, target_names=["정상", "스팸"]))
+
+for text, true, p in zip(text_test, y_test, proba):
+    pred = int(p[1] > threshold)
+    if true != pred:
+        print(f"[실제:{true}] [예측:{pred}] {p[1]:.3f} | {text}")
+
+print("\n 지표 확인 ")
+
