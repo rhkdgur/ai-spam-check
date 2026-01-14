@@ -12,13 +12,15 @@ from sklearn.feature_extraction.text import TfidfVectorizer # TF-IDF 사용
 vectorizer = TfidfVectorizer( 
     ngram_range=(1,2),  # 단어 범위를 1개에서 2개로 봄
     min_df=3, # 3개 문서 이상 등장
-    max_df=0.9) # 너무 흔한 단어 제거 90%
+    max_df=0.9, # 너무 흔한 단어 제거 90%
+    sublinear_tf=True
+) 
 x = vectorizer.fit_transform(global_data.df["text"]); 
 y = global_data.df["label"];
 
 # 데이터 분리
-x_train, x_test, y_train , y_test = train_test_split(
-    x, y, test_size=0.2, random_state=42
+x_train, x_test, y_train , y_test, text_trans, text_test = train_test_split(
+    x, y, global_data.df["text"], test_size=0.3, random_state=42
 )
 
 # 모델 만들고 학습시키기
@@ -61,11 +63,10 @@ print("\n정상에 가장 영향 큰 단어")
 for idx in top_ham_idx:
     print(f"{feature_names[idx]} : {coefficients[idx]:.3f}")
 
-print("\n n-gram 단어 묶음 보기")
-feature_names = vectorizer.get_feature_names_out()
-coefficients = model.coef_[0]
 
-top_idx = coefficients.argsort()[-15:][::-1]
+print("\n오분류 문자 TOP 5 확인")
+proba = model.predict_proba(x_test)
 
-for i in top_idx:
-    print(feature_names[i], coefficients[i])
+for text, true, p in zip(text_test, y_test, proba):
+    if true != (p[1] > 0.5):
+        print(text, p[1])
